@@ -1,0 +1,11 @@
+[project]
+name = "vispy-realtime-image-repro"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pyqt5>=5.15.11",
+    "pyqt5-qt5==5.15.2",
+    "vispy>=0.15.2",
+]
