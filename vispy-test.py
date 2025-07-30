@@ -7,7 +7,9 @@ from vispy.scene.visuals import Image
 from vispy.app import use_app
 
 
-from data_source import ds
+from data_source import data_source
+
+initial_data = data_source.ds.get_data()
 
 
 class Controls(QtWidgets.QWidget):
@@ -35,7 +37,7 @@ class CanvasWrapper(QtCore.QObject):
         self.grid = self.canvas.central_widget.add_grid()
 
         self.view_top = self.grid.add_view(0, 0, bgcolor="k")
-        image_data = ds.get_data()
+        image_data = initial_data
         self.image = Image(
             image_data,
             texture_format="auto",
@@ -77,34 +79,6 @@ class MyMainWindow(QtWidgets.QMainWindow):
         return super().closeEvent(event)
 
 
-class QDataSource(QtCore.QObject):
-    """Object representing a complex data producer."""
-
-    new_data = QtCore.pyqtSignal(np.ndarray)
-    finished = QtCore.pyqtSignal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ds = ds
-        self._should_end = False
-        self._image_data = ds.get_data()
-
-    def run_data_creation(self):
-        if self._should_end:
-            print("Data source finishing")
-            self.finished.emit()
-            return
-
-        image_data = self.ds.get_data()
-
-        self.new_data.emit(image_data)
-        QtCore.QTimer.singleShot(0, self.run_data_creation)
-
-    def stop_data(self):
-        print("Data source is quitting...")
-        self._should_end = True
-
-
 if __name__ == "__main__":
     app = use_app("pyqt6")
     app.create()
@@ -112,7 +86,6 @@ if __name__ == "__main__":
     canvas_wrapper = CanvasWrapper()
     win = MyMainWindow(canvas_wrapper)
     data_thread = QtCore.QThread(parent=win)
-    data_source = QDataSource()
     data_source.moveToThread(data_thread)
 
     data_source.new_data.connect(canvas_wrapper.update_data)

@@ -1,6 +1,7 @@
 from arc import CG, Wavefunction, AlkaliAtom, Ylm
 import numpy as np
 from arc import Rubidium87 as ATOM
+from PyQt6 import QtCore
 
 type StateTuple = tuple[int, int, float, float]  # (n, l, j, mj)
 
@@ -117,3 +118,32 @@ ds.set_states(
         (54, 2, 5 / 2, 5 / 2),
     ]
 )
+
+class QDataSource(QtCore.QObject):
+    """Object representing a complex data producer."""
+
+    new_data = QtCore.pyqtSignal(np.ndarray)
+    finished = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ds = ds
+        self._should_end = False
+        self._image_data = ds.get_data()
+
+    def run_data_creation(self):
+        if self._should_end:
+            print("Data source finishing")
+            self.finished.emit()
+            return
+
+        image_data = self.ds.get_data()
+
+        self.new_data.emit(image_data)
+        QtCore.QTimer.singleShot(0, self.run_data_creation)
+
+    def stop_data(self):
+        print("Data source is quitting...")
+        self._should_end = True
+
+data_source = QDataSource()
