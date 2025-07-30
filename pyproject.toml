@@ -5,7 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pyqt5>=5.15.11",
-    "pyqt5-qt5==5.15.2",
+    "arc-alkali-rydberg-calculator>=3.9.0",
+    "pyqt6>=6.9.1",
+    "pyqtgraph>=0.13.7",
     "vispy>=0.15.2",
 ]
+
+[tool.uv.sources]
+arc-alkali-rydberg-calculator = { git = "https://github.com/krokosik/ARC-Alkali-Rydberg-Calculator", rev = "32c5fd5ec44d568f4fcb272d66a2950ee65627e3" }
